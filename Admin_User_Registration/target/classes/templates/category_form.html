@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add/Edit Category</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .form-container {
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 4px;
+            color: white;
+            margin-right: 10px;
+            font-weight: bold;
+            display: inline-block;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-save {
+            background-color: green;
+        }
+
+        .btn-back {
+            background-color: #007bff;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2 th:text="${category.id} != null ? 'Edit Category' : 'Add Category'">Add/Edit Category</h2>
+        <form th:action="@{/admin/categories/update/{id}(id=${category.id})}" th:if="${category.id != null}" th:object="${category}" method="post">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" th:field="*{name}" required>
+            </div>
+            <button type="submit" class="btn btn-save">Save</button>
+            <a th:href="@{/admin/categories}" class="btn btn-back">Back to Category List</a>
+        </form>
+        <!-- Form for creating a new category -->
+        <form th:action="@{/admin/categories}" th:if="${category.id == null}" th:object="${category}" method="post">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" th:field="*{name}" required>
+            </div>
+            <button type="submit" class="btn btn-save">Save</button>
+            <a th:href="@{/admin/categories}" class="btn btn-back">Back to Category List</a>
+        </form>
+    </div>
+</body>
+</html>

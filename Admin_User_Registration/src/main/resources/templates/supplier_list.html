@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Supplier List</title>
+    <style>
+        /* Your CSS styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            margin-top: 0;
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .action-buttons a {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+        }
+        .action-buttons a:nth-child(2) {
+            background-color: #008CBA;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+        th {
+            text-align: left;
+            background-color: #f0f0f0;
+        }
+        a.action-link {
+            color: #4CAF50;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+        a.action-link.delete {
+            color: #f44336;
+        }
+        .search-form {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .search-form input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        .search-form button {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Supplier List</h2>
+        <div class="action-buttons">
+            <a href="/admin/suppliers/new">Add New Supplier</a>
+            <a href="/admin-page">Back to Admin Dashboard</a>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>TIN Number</th> <!-- Added TIN number column -->
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="supplier : ${suppliers}">
+                    <td th:text="${supplier.id}"></td>
+                    <td th:text="${supplier.name}"></td>
+                    <td th:text="${supplier.email}"></td>
+                    <td th:text="${supplier.phone}"></td>
+                    <td th:text="${supplier.tinNumber}"></td> <!-- Display the TIN number -->
+                    <td>
+                        <a th:href="@{/admin/suppliers/edit/{id}(id=${supplier.id})}" class="action-link">Edit</a>
+                        <a th:href="@{/admin/suppliers/delete/{id}(id=${supplier.id})}" class="action-link delete">Delete</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <form action="/admin/suppliers/search" method="get" class="search-form">
+            <input type="text" name="keyword" placeholder="Search Suppliers">
+            <button type="submit">Search</button>
+        </form>
+    </div>
+</body>
+</html>

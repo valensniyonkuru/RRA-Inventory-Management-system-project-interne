@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${sale.id != null ? 'Edit Sale' : 'New Sale'}">Sale Form</title>
+    <style>
+         body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        input[type="date"], 
+        input[type="number"], 
+        select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        a {
+            text-decoration: none;
+            color: #007bff;
+            font-size: 16px;
+            padding: 10px;
+            border: 1px solid #007bff;
+            border-radius: 4px;
+            display: inline-block;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        a:hover {
+            text-decoration: none;
+            background-color: #007bff;
+            color: white;
+        }
+        .error-message {
+            color: red;
+            margin-top: 10px;
+        }
+        .stock-info {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1 th:text="${sale.id != null ? 'Edit Sale' : 'New Sale'}"></h1>
+    <form th:action="@{/admin/sales}" th:object="${sale}" method="post">
+        <input type="hidden" th:name="id" th:value="${sale.id}"/>
+        
+        <label for="date">Date:</label>
+        <input type="date" id="date" th:field="*{date}" required/>
+        
+        <label for="quantity">Quantity:</label>
+        <input type="number" id="quantity" th:field="*{quantity}" required oninput="checkQuantity()"/>
+        
+        <label for="product">Product:</label>
+        <select id="product" th:field="*{productId}" required onchange="updateStockInfo()">
+            <option th:each="product : ${products}" 
+                    th:value="${product.id}" 
+                    th:text="${product.name}"
+                    th:data-stock="${product.stock}">
+            </option>
+        </select>
+        <div id="stock-info" class="stock-info"></div>
+        
+        <label for="customer">Customer:</label>
+        <select id="customer" th:field="*{customerId}" required>
+            <option th:each="customer : ${customers}" th:value="${customer.id}" th:text="${customer.name}"></option>
+        </select>
+        
+        <button type="submit">Save</button>
+    </form>
+    <a href="/admin/sales">Back to list</a>
+
+    <!-- Display error message -->
+    <div th:if="${error != null}" class="error-message">
+        <p th:text="${error}"></p>
+    </div>
+
+    <script>
+        // Function to update stock information based on selected product
+        function updateStockInfo() {
+            const productSelect = document.getElementById('product');
+            const stockInfoDiv = document.getElementById('stock-info');
+            const quantityInput = document.getElementById('quantity');
+            const selectedOption = productSelect.options[productSelect.selectedIndex];
+            const productName = selectedOption.text;
+
+            // Retrieve stock information from the option data
+            const productStock = parseInt(selectedOption.getAttribute('data-stock'));
+
+            if (!isNaN(productStock)) {
+                stockInfoDiv.textContent = `Available stock for ${productName}: ${productStock}`;
+                quantityInput.setAttribute('max', productStock);
+                checkQuantity();
+            } else {
+                stockInfoDiv.textContent = '';
+                quantityInput.removeAttribute('max');
+            }
+        }
+
+        // Function to check quantity validity
+        function checkQuantity() {
+            const quantityInput = document.getElementById('quantity');
+            const productSelect = document.getElementById('product');
+            const selectedOption = productSelect.options[productSelect.selectedIndex];
+            const productStock = parseInt(selectedOption.getAttribute('data-stock'));
+            const quantity = parseInt(quantityInput.value);
+
+            if (!isNaN(productStock) && !isNaN(quantity) && quantity > productStock) {
+                quantityInput.setCustomValidity(`Quantity cannot exceed the available stock of ${productStock}`);
+            } else {
+                quantityInput.setCustomValidity('');
+            }
+        }
+
+        // Function to set the default date to today and restrict the date range
+        function setDefaultDate() {
+            const dateInput = document.getElementById('date');
+            const today = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
+
+            dateInput.value = today;      // Set default value to today
+            dateInput.setAttribute('min', today);  // Set minimum date to today
+            dateInput.setAttribute('max', today);  // Set maximum date to today
+        }
+
+        // Initialize date on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setDefaultDate();
+            updateStockInfo(); // Ensure stock info is updated if a product is pre-selected
+        });
+    </script>
+</body>
+</html>

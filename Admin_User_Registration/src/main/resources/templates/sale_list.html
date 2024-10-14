@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sale List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            flex: 1;
+        }
+        button, a.button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            text-align: center;
+            color: white;
+            text-decoration: none;
+        }
+        button {
+            background-color: #007bff;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        a.button {
+            background-color: #008CBA;
+        }
+        a.button:hover {
+            background-color: #005f6b;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        a {
+            text-decoration: none;
+            color: #007bff;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <script>
+        function printSale(id) {
+            var printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write('<html><head><title>Print Sale</title>');
+            printWindow.document.write('<style>');
+            printWindow.document.write('body { font-family: Arial, sans-serif; margin: 20px; }');
+            printWindow.document.write('h1, h2 { text-align: center; color: #333; margin-bottom: 20px; }');
+            printWindow.document.write('table { width: 100%; border-collapse: collapse; margin-top: 20px; }');
+            printWindow.document.write('table, th, td { border: 1px solid #ddd; }');
+            printWindow.document.write('th, td { padding: 10px; text-align: left; }');
+            printWindow.document.write('th { background-color: #f4f4f4; }');
+            printWindow.document.write('.total { font-weight: bold; font-size: 18px; text-align: right; }');
+            printWindow.document.write('</style>');
+            printWindow.document.write('</head><body>');
+            printWindow.document.write('<h1>Sale Invoice</h1>');
+            printWindow.document.write('<h2>Sale Details</h2>');
+            printWindow.document.write('<table>');
+            printWindow.document.write('<tr><th>ID</th><th>Date</th><th>Quantity</th><th>Product Name</th><th>Customer Name</th><th>Total Price</th></tr>');
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/admin/sales/details/' + id, true);
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    var sale = JSON.parse(xhr.responseText);
+                    printWindow.document.write('<tr>');
+                    printWindow.document.write('<td>' + sale.id + '</td>');
+                    printWindow.document.write('<td>' + sale.date + '</td>');
+                    printWindow.document.write('<td>' + sale.quantity + '</td>');
+                    printWindow.document.write('<td>' + sale.productName + '</td>');
+                    printWindow.document.write('<td>' + sale.customerName + '</td>');
+                    printWindow.document.write('<td>$' + sale.totalPrice + '</td>');
+                    printWindow.document.write('</tr>');
+                    printWindow.document.write('</table>');
+                    
+                    // Adding a summary section
+                    printWindow.document.write('<h2>Summary</h2>');
+                    printWindow.document.write('<table>');
+                    printWindow.document.write('<tr><th>Customer Name:</th><td>' + sale.customerName + '</td></tr>');
+                    printWindow.document.write('<tr><th>Product Name:</th><td>' + sale.productName + '</td></tr>');
+                    printWindow.document.write('<tr><th>Quantity:</th><td>' + sale.quantity + '</td></tr>');
+                    printWindow.document.write('<tr><th>Total Price:</th><td>$' + sale.totalPrice + '</td></tr>');
+                    printWindow.document.write('</table>');
+
+                    // Adding a footer
+                    printWindow.document.write('<p class="total">Thank you for your business!</p>');
+                    
+                    printWindow.document.write('</body></html>');
+                    printWindow.document.close();
+                    printWindow.focus();
+                    printWindow.print();
+                } else {
+                    alert('Failed to fetch sale details');
+                }
+            };
+            xhr.send();
+        }
+    </script>
+</head>
+<body>
+    <h1>Sales List</h1>
+    <form action="/admin/sales/search" method="get">
+        <input type="text" name="keyword" placeholder="Search by product name"/>
+        <button type="submit">Search</button>
+        <a href="/admin-page" class="button">Back to Admin Dashboard</a>
+    </form>
+    <a href="/admin/sales/new" class="button">Add New Sale</a>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Date</th>
+                <th>Quantity</th>
+                <th>Product Name</th>
+                <th>Customer Name</th>
+                <th>Total Price</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="sale : ${sales}">
+                <td th:text="${sale.id}"></td>
+                <td th:text="${sale.date}"></td>
+                <td th:text="${sale.quantity}"></td>
+                <td th:text="${sale.productName}"></td>
+                <td th:text="${sale.customerName}"></td>
+                <td th:text="${sale.totalPrice}"></td>
+                <td>
+                    <a th:href="@{/admin/sales/edit/{id}(id=${sale.id})}" class="button">Edit</a> |
+                    <a th:href="@{/admin/sales/delete/{id}(id=${sale.id})}" onclick="return confirm('Are you sure?')" class="button">Delete</a> |
+                    <a href="javascript:void(0);" th:onclick="'printSale(' + ${sale.id} + ')'" class="button">Print</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

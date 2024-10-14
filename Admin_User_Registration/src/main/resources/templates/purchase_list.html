@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Purchase List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        a, button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        a.button {
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+        }
+        a.button:hover {
+            background-color: #45a049;
+        }
+        button.cancel {
+            background-color: #f0f0f0;
+            color: #333;
+            border: 1px solid #ccc;
+        }
+        button.cancel:hover {
+            background-color: #e0e0e0;
+            color: #000;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f0f0f0;
+        }
+        form {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 400px;
+            border-radius: 8px;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover, .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Purchase List</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <a href="/admin/purchases/new" class="button">Add New Purchase</a>
+            <a href="/admin-page" class="button">Back to Admin Dashboard</a>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Product Name</th>
+                    <th>Supplier Name</th>
+                    <th>Supplier TIN</th>
+                    <th>Quantity</th>
+                    <th>Cost</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Loop through the purchase list -->
+                <tr th:each="purchase : ${purchases}">
+                    <td th:text="${purchase.id}"></td>
+                    <td th:text="${purchase.productName}"></td>
+                    <td th:text="${purchase.supplierName}"></td>
+                    <td th:text="${purchase.supplierTinNumber}"></td>
+                    <td th:text="${purchase.quantity}"></td>
+                    <td th:text="${purchase.cost}"></td>
+                    <td th:text="${purchase.date}"></td>
+                    <td>
+                        <button th:onclick="'openModal(' + ${purchase.id} + ', \'' + ${purchase.reason} + '\')'" class="cancel">Cancel</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <form action="/admin/purchases/search" method="get">
+            <input type="text" name="keyword" placeholder="Search Purchases">
+            <button type="submit" class="button">Search</button>
+        </form>
+    </div>
+
+    <!-- Cancel Reason Modal -->
+    <div id="cancelModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>Cancel Purchase</h4>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <form action="/admin/purchases/cancel" method="post">
+                <input type="hidden" id="purchaseId" name="purchaseId">
+                <label for="reason">Reason for cancellation:</label>
+                <textarea id="reason" name="reason" required></textarea>
+                <br><br>
+                <button type="submit" class="button">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+    function openModal(purchaseId, existingReason) {
+        document.getElementById('cancelModal').style.display = 'block';
+        document.getElementById('purchaseId').value = purchaseId;
+        document.getElementById('reason').value = existingReason;
+    }
+
+    function closeModal() {
+        document.getElementById('cancelModal').style.display = 'none';
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Form</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .container {
+            display: flex;
+            align-items: center; /* Vertically center the image and form */
+            justify-content: center; /* Horizontally center the container */
+            height: 100vh; /* Full height */
+        }
+
+        .image-container {
+            margin-right: 20px; /* Space between image and form */
+        }
+
+        .form-container {
+            max-width: 400px;
+        }
+
+        img {
+            width: 200px;
+            height: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Display the image on the left -->
+        <div class="image-container">
+            <img src="/image/val.jpg" alt="Val Image">
+        </div>
+
+        <!-- Display the login form on the right -->
+        <div class="form-container">
+            <!-- Display messages -->
+            <div class="message" th:if="${param.error}">
+                Invalid Username or Password
+            </div>
+            <div class="message" th:if="${param.logout}">
+                Logout Successful
+            </div>
+            
+            <!-- Login form -->
+            <h2>Login</h2>
+            <form th:action="@{/login}" method="post">
+                <div class="form-group">
+                    <label for="username">Email:</label>
+                    <input type="email" id="username" name="username" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                </div>
+                <input type="submit" value="Login">
+            </form>
+
+            <p>Don't have an account? <a href="/registration">Register here</a></p>
+        </div>
+    </div>
+</body>
+</html>

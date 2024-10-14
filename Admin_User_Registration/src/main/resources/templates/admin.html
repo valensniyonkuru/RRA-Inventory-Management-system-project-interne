@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+
+    <!-- Font Awesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        /* Sidebar Styles */
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #333;
+            color: #fff;
+            padding-top: 20px;
+            transition: 0.3s ease;
+            overflow: auto;
+            transform: translateX(0);
+        }
+
+        .sidebar a {
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #ddd;
+            display: flex;
+            align-items: center;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #575757;
+            padding-left: 20px;
+        }
+
+        .sidebar i {
+            margin-right: 10px;
+        }
+
+        .sidebar .active {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .sidebar .menu-title {
+            font-size: 20px;
+            font-weight: bold;
+            padding: 15px;
+            background-color: #444;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .header {
+            background-color: #007bff;
+            padding: 10px;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            margin: 0;
+        }
+
+        .logout-button {
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .logout-button:hover {
+            background-color: #c82333;
+        }
+
+        .dashboard-container {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .dashboard-container h2 {
+            color: #007bff;
+        }
+
+        /* Sidebar animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Responsive styles */
+        @media screen and (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                position: fixed;
+                overflow: hidden;
+                transform: translateX(-100%);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .sidebar.show {
+                width: 250px;
+                transform: translateX(0);
+            }
+        }
+
+        .main-content.shifted {
+            margin-left: 250px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="menu-title">Admin Dashboard</div>
+
+        <a href="#" id="categoryLink" data-url="/admin/categories" onclick="loadContent(event)">
+            <i class="fas fa-list"></i> Category
+        </a>
+        <a href="#" id="productLink" data-url="/admin/products" onclick="loadContent(event)">
+            <i class="fas fa-box"></i> Product
+        </a>
+        <a href="#" id="customerLink" data-url="/admin/customers" onclick="loadContent(event)">
+            <i class="fas fa-users"></i> Customer
+        </a>
+        <a href="#" id="supplierLink" data-url="/admin/suppliers" onclick="loadContent(event)">
+            <i class="fas fa-truck"></i> Supplier
+        </a>
+        <a href="#" id="salesLink" data-url="/admin/sales" onclick="loadContent(event)">
+            <i class="fas fa-chart-line"></i> Sales
+        </a>
+        <a href="#" id="purchasesLink" data-url="/admin/purchases" onclick="loadContent(event)">
+            <i class="fas fa-shopping-cart"></i> Purchases
+        </a>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Admin Dashboard</h1>
+            <div>
+                <a href="/logout" class="logout-button">Log Out</a>
+            </div>
+        </div>
+
+        <div class="dashboard-container">
+            <h2>Welcome, [[${user.username}]]</h2>
+            <p>Manage your inventory and other resources using the menu on the left.</p>
+        </div>
+    </div>
+
+    <script>
+    // Function to show/hide links based on the role
+    function handleRoleChange(role) {
+        if (role === 'ADMIN') {
+            // Admins can see all links
+            document.getElementById('categoryLink').style.display = 'block';
+            document.getElementById('productLink').style.display = 'block';
+            document.getElementById('customerLink').style.display = 'block';
+            document.getElementById('supplierLink').style.display = 'block';
+            document.getElementById('salesLink').style.display = 'block';
+            document.getElementById('purchasesLink').style.display = 'block';
+        } else {
+            // If role is 'USER', only show the 'Sales' link
+            document.getElementById('categoryLink').style.display = 'none';
+            document.getElementById('productLink').style.display = 'none';
+            document.getElementById('customerLink').style.display = 'none';
+            document.getElementById('supplierLink').style.display = 'none';
+            document.getElementById('salesLink').style.display = 'block';
+            document.getElementById('purchasesLink').style.display = 'none';
+
+            // Redirect to the sales page content
+            loadContentForRole('/admin/sales');
+        }
+    }
+
+    // Function to load content based on role
+    function loadContentForRole(url) {
+        // Perform AJAX request to fetch the page content
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(data => {
+                document.querySelector('.dashboard-container').innerHTML = data;
+            })
+            .catch(error => console.error('Error loading content:', error));
+    }
+
+    // Function to toggle the sidebar
+    function toggleSidebar() {
+        document.querySelector('.sidebar').classList.toggle('show');
+        document.querySelector('.main-content').classList.toggle('shifted');
+    }
+
+    // Function to load content via AJAX
+    function loadContent(event) {
+        event.preventDefault(); // Prevent default link behavior
+        var url = event.target.getAttribute('data-url'); // Get URL from data attribute
+
+        // Perform AJAX request to fetch content
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(data => {
+                document.querySelector('.dashboard-container').innerHTML = data;
+            })
+            .catch(error => console.error('Error loading content:', error));
+    }
+
+    // Initialize the menu based on the user's role
+    window.onload = function() {
+        // Fetch the user's role from the server
+        fetch('/api/user/role')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch user role');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Pass the fetched role to handleRoleChange function
+                handleRoleChange(data.role);
+            })
+            .catch(error => console.error('Error fetching user role:', error));
+    }
+</script>
+
+
+</body>
+</html>

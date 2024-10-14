@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add/Edit Purchase</title>
+</head>
+<body style="font-family: Arial, sans-serif;">
+    <div class="container" style="width: 60%; margin: 0 auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px;">
+        <h2 th:text="${purchase.id != null} ? 'Edit Purchase' : 'Add Purchase'"
+            style="text-align: center; color: #333; font-size: 24px;">Add/Edit Purchase</h2>
+        
+        <!-- Form for adding/editing purchases -->
+        <form th:action="@{${purchase.id != null} ? '/admin/purchases/update/' + ${purchase.id} : '/admin/purchases'}" method="post">
+            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+            
+            <!-- Product selection dropdown -->
+            <div style="margin-bottom: 20px;">
+                <label for="product" style="display: block; margin-bottom: 8px;">Product:</label>
+                <select id="product" name="productId" required style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                    <th:block th:each="product : ${products}">
+                        <option th:value="${product.id}" th:text="${product.name}"
+                            th:selected="${purchase.productId != null && purchase.productId == product.id}"></option>
+                    </th:block>
+                </select>
+            </div>
+            
+            <!-- Supplier selection dropdown -->
+            <div style="margin-bottom: 20px;">
+                <label for="supplier" style="display: block; margin-bottom: 8px;">Supplier:</label>
+                <select id="supplier" name="supplierId" required style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                    <th:block th:each="supplier : ${suppliers}">
+                        <option th:value="${supplier.id}" th:text="${supplier.name}"
+                            th:selected="${purchase.supplierId != null && purchase.supplierId == supplier.id}"></option>
+                    </th:block>
+                </select>
+            </div>
+            
+            <!-- Quantity input -->
+            <div style="margin-bottom: 20px;">
+                <label for="quantity" style="display: block; margin-bottom: 8px;">Quantity:</label>
+                <input type="number" id="quantity" name="quantity" th:value="${purchase.quantity}" required
+                       style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+            </div>
+
+            <!-- Cost input -->
+            <div style="margin-bottom: 20px;">
+                <label for="cost" style="display: block; margin-bottom: 8px;">Cost:</label>
+                <input type="text" id="cost" name="cost" th:value="${purchase.cost}" required
+                       style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+            </div>
+
+            <!-- Purchase date input -->
+            <div style="margin-bottom: 20px;">
+                <label for="date" style="display: block; margin-bottom: 8px;">Purchase Date:</label>
+                <input type="date" id="date" name="date" th:value="${purchase.date}" required
+                       style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+            </div>
+            
+            <!-- Buttons for save, cancel, and report access -->
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <button type="submit" style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 5px;">Save</button>
+                <a href="/admin/purchases" class="button" style="padding: 10px 20px; background-color: #f0f0f0; text-decoration: none; color: #333; border-radius: 5px; border: 1px solid #ccc;">Cancel</a>
+                <!-- Added link to canceled purchases report -->
+                <a href="/admin/purchases/canceled" class="button" style="padding: 10px 20px; background-color: #ff6347; text-decoration: none; color: white; border-radius: 5px;">View Canceled Report</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
